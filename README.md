@@ -51,7 +51,7 @@ To obtain the wordlist from the DAWG file, just pipe the content through the too
 $ cat espanol.dawg | dawg unbuild > espanol.copy.txt
 ```
 
-However keep in mind that the DAWG does not contain empty lines or duplicated words, and the order may be different than in the original wordlist. This specific source wordlist file `espanol.txt` contains some words that are repeated, so the correct way of matching its content against the wordlist generated from a DAWG file would be to also remove duplications from the source.
+However keep in mind that the DAWG does not contain empty lines or duplicated words, and the order may be different than in the original wordlist. This specific source wordlist file `espanol.txt` contains some words that are repeated, so the correct way of matching its content against the wordlist generated from a DAWG file would be to also remove duplications from the source and sort them in the same way.
 
 ```
 $ cat espanol.txt | wc -l
