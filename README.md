@@ -180,6 +180,8 @@ To go through the DAWG requires to jump back and forward in the array, in order 
 
 These are some comparative tests I have performed to understand the behaviour of a DAWG. These tests are not benchmarks and are not mean to be accurate, their purpose is just to get an idea on how a DAWG comparares to other data structures in both size and performance.
 
+Reported timmings are accumulative, not the average. Meaning that if a test says it is taking 20 samples and running it 100 times each, the reported time is how long did it take to process the 2,000 operations.
+
 ## File size
 
 It seems that as expected the size of the DAWG depends heavily on the similarities between the words in the wordlist. Although usually GZIP seems to provide a better compression rate, for example in `francais.txt` the DAWG file size is less than the half of the GZIPed file size.
