@@ -1,0 +1,23 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <OutputType>Exe</OutputType>
+        <TargetFramework>netcoreapp3.1</TargetFramework>
+        <RootNamespace>vtortola</RootNamespace>
+        <PackAsTool>true</PackAsTool>
+        <ToolCommandName>dawg</ToolCommandName>
+        <PackageId>vtortola.Dawg.Tool</PackageId>
+        <Version>0.0.1-alpha</Version>
+        <Authors>vtortola</Authors>
+        <RepositoryUrl>https://github.com/vtortola/dawg</RepositoryUrl>
+        <RepositoryType>git</RepositoryType>
+        <Description>A proof of concept of a tool that builds a memory optimized DAWG.</Description>
+        <PackageTags>DAWG;DAFSA;Data Structure;Trie</PackageTags>
+        <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\vtortola.Dawg\vtortola.Dawg.csproj" />
+    </ItemGroup>
+
+</Project>
