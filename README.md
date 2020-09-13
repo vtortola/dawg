@@ -2,24 +2,23 @@
 ## What is a DAWG/DAFSA?
 [A DAWG (Directed Acyclic Word Graph), also known as DAFSA (Deterministic Acyclic Finite State Automaton) ](https://en.wikipedia.org/wiki/Deterministic_acyclic_finite_state_automaton) is an interesting graph data structure used for storing strings with a minimal memory usage while maintaining very good query time for both search and prefix search. In the same way that the Trie data structure merges common prefixes, in a DAWG common suffixes are also merged. 
 
-A DAWG can be represented in a [compact way as a sequence of values (usually 4 bytes values)](https://pages.pathcom.com/~vadco/dawg.html), being its size in disk almost the same as its size in memory. The size of a DAWG depends on the amount of common prefixes and suffixes that a list of words have, so the DAWG that may or may not outperform GZIP in the compression rate. For example in my implementation the [2019 Collin's Scrabble wordlist](https://boardgames.stackexchange.com/questions/38366/latest-collins-scrabble-words-list-in-text-file) with 279,496 words and a file size of 4,123 kB results in DAWG of 712 kB, while GZIP produces a 706 kB file; but the [Polish Scrabble wordlist](http://sjp.pl/slownik/growy/) with 3,043,375 words and a file size of 38,827 kB results in a DAWG of 1,575 kB, while GZIP produces a 7,720 kB file.
+A DAWG can be represented in a [compact way as a sequence of values (usually 4 bytes values)](https://pages.pathcom.com/~vadco/dawg.html), being its size in disk almost the same as its size in memory. The size of a DAWG depends on the amount of common prefixes and suffixes that a list of words have, so the DAWG may or may not outperform GZIP in the compression rate. For example in my implementation the [2019 Collin's Scrabble wordlist](https://boardgames.stackexchange.com/questions/38366/latest-collins-scrabble-words-list-in-text-file) with 279,496 words and a file size of 4,123 kB results in DAWG of 712 kB, while GZIP produces a 706 kB file; but the [Polish Scrabble wordlist](http://sjp.pl/slownik/growy/) with 3,043,375 words and a file size of 38,827 kB results in a DAWG of 1,575 kB, while GZIP produces a 7,720 kB file.
 
-Nevertheless, merging all common suffixes may lead to a graph that is small in memory but impossible to represent it as a compact sequence of values.
+Nevertheless, when reducing a Trie into a DAWG if all common suffixes are merged it may lead to a graph that has a reduced numbe of nodes, but that cannot be represented as a sequence of values, and therefore would take more space. Testing against other DAWG library I could se that for the same file the Trie was reduced to the half of the nodes of my implementation and was around 25-30% faster, but outputs a DAWG file that is 25-30% bigger than from my implementation.
 
-Building a DAWG is an expensive process since the graph needs to be analyzed and processed. GZIP can be more than 5x times faster at times. However a DAWG is queryable while a GZIP file needs to be expanded and maybe processed into another data structure (eg: a hashset). Creating a Trie, which is the first step of creating a DAWG, has a time complexity of O(nm), where n is the number of words and m the average word length. Subsequent steps to build a DAWG merging common sufixes may involve multiple graph DFS passes depending on the implementation.
+Building a DAWG is an expensive process since the graph needs to be analyzed and processed. GZIP can be more than 5x times faster at times. However a DAWG is queryable while a GZIP file needs to be expanded and maybe processed into another data structure (eg: a hashset). Creating a Trie, which is the first step of creating a DAWG, has a time complexity of `O(nm)`, where `n` is the number of words and `m` the average word length. Subsequent steps to build a DAWG merging common sufixes may involve multiple graph DFS passes depending on the implementation.
 
-Queyring a DAWG has a time complexity of `O(cw)`, where `c` is the number of different characters and `w` the word length. In the mentioned Collin's wordlist, 26 characters and the longest word has 15 characters, making the DAWG very fast. Having the words in a hashset provides a faster query time with O(1) time complexity, but its size in memory would be bigger and it would not be possible to do a prefix search.
+Queyring a DAWG has a time complexity of `O(cw)`, where `c` is the number of different characters and `w` the word to search length. In the mentioned Collin's wordlist, 26 characters and the longest word has 15 characters, making the DAWG very fast. Having the words in a hashset provides a faster query time with `O(1)` time complexity, but its size in memory would be bigger and it would not be possible to do a prefix search.
 
 ## This project
 
-There are several algorithms to build a DAWG, some more efficient than others. For this purely self-didactic project, inspired in the idea of having a hash that represents a node and its descendency, I have developed a simple one also based on hashing that allows me not only to find nodes that are equivalent in both value and descendency, but also to quickly identify equivalent sibling lists. Hashing is fast but not bulletproof and a collision is possible, although I have tested current implementation in many files, it is statistically possible. That is why I have included a method to check that the generated DAWG contains the expected words. Good news is that hashing is just used to classify nodes siblingness, and once the DAWG is built is not necessary anymore. In other words, once the DAWG is created there is no need to worry about collisions, and if you get a collision when building it you may need to salt a little bit the hashing algorithm.
+There are several algorithms to build a DAWG, some more efficient than others. For this purely self-didactic project, inspired in the idea of having a hash that represents a node and its descendency, I have developed a simple one also based on hashing that allows it not only to find nodes that are equivalent in both value and descendency, but also to quickly identify equivalent sibling lists. Hashing is fast but not bulletproof and a collision is possible, although I have tested current implementation in many files and used two different hash calculations combined, it is statistically possible. That is why I have included a method to check that the generated DAWG contains the expected words. Good news is that hashing is just used to classify nodes siblingness, and once the DAWG is built is not necessary anymore. In other words, once the DAWG is created there is no need to worry about collisions, and if you get a collision when building it you may need to salt a little bit the hashing algorithm.
 
-This is a proof of concept and should not use in production unless you know what you are doing.
+This is a **proof of concept** and should not use in production unless you know what you are doing. However if you use it and get into a wordlist that fails during DAWG validation... let me know, I will be definitely curious :)
 
 # Using the library
 
 If you want to give it a try, you can either use it as a library in an application, or install it directly from Nuget as a console tool.
-
 
 ## Console tool
 If you have dotnet 3.1 installed, you can install the tool directly from [Nuget](https://www.nuget.org/packages/vtortola.Dawg.Tool/0.0.1-alpha)
@@ -90,7 +89,12 @@ Let's build a DAWG with the following words: `COP, COPS, CUP, CUPS, HOP, HOPS, H
 
 ## The Trie
 
-The first step is to build a Trie. The gray node is the root and has no meaning beyond being the common parent for all the first letters. Nodes with a bold circunferene are **terminal nodes**, meaning that a word exists in that location. Green nodes are the **last node** in a list of sibblings, something we will need to know when building the final representation of the DAWG. The orange rectangle points to where the next step is gonna happen.
+The first step is to build a Trie. I created some pictures to illustrate the process:
+
+* The gray node is the root and has no meaning beyond being the common parent for all the first letters. 
+* Nodes with a bold circunferene are **terminal nodes**, meaning that a word exists in that location. 
+* Green nodes are the **last node** in a list of sibblings, something we will need to know when building the final representation of the DAWG. 
+* The orange rectangle points to where the next step is gonna happen.
 
 ![](docs/graph0.png)
 
@@ -106,6 +110,8 @@ For each node, multiple hashes are calculated:
 Also during this step, a cache is recording which is the bigger list that contains a specific sublist hash, so bigger lists can be reused to represent as many smaller lists as possible.
 
 ## Merging nodes
+
+Note this is not the actual way this implementation works. It just illustrates the type of merges that are allowed.
 
 Starting from the bottom, parent nodes of a given node which have same destinations and brothers can be merged.
 
@@ -152,22 +158,23 @@ To store each node as 4 byte value, the 32 bits are distributed as follows:
 
 ## The algorithm
 
+The basic steps of this implementation are:
  * Build a trie.
  * Do bottom-up DFS generating all the hashes.
  * Remember the longest sibling list for each siblings hash.
  * Sort in descending order the list of longest sibling lists and number the nodes sequentially. Enqueue the nodes of these lists.
  * Write in the DAWG the children of the start node (which are indeed the first letters of every word in the source wordlist).
- * Write all the nodes in the queue to the DAWG.
+ * Write all the nodes in the queue to the DAWG using the provided number as array index.
  
-### What is good?
+### What is good about it?
 
 It is fast and the compression ratio is very good.
 
-### What is not good?
+### What is not good about it?
 
-Relies only in hashing. A hash collision would produce an inconsistent DAWG. That is why a `Dawg.Verify` method is provided.
+Relies only in hashing. A hash collision would produce an inconsistent DAWG. That is why a `Dawg.Verify` method is provided to detect an inconsistent DAWG.
 
-To go through the DAWG requires to jump back and forward in the array, in order words, a child node may have a smaller array index than a parent, making it more difficult to detect a loop. An inconsistent DAWG may fall in a endless loop.
+To go through the DAWG requires to jump back and forward in the array, in order words, a child node may have a smaller array index than a parent, making it more difficult to detect a loop. An inconsistent DAWG may fall into a endless loop.
 
 # Comparisons
 
