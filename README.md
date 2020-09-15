@@ -16,72 +16,6 @@ There are several algorithms to build a DAWG, some more efficient than others. F
 
 This is a **proof of concept** and should not use in production unless you know what you are doing. However if you use it and get into a wordlist that fails during DAWG validation... let me know, I will be definitely curious :)
 
-# Using the library
-
-If you want to give it a try, you can either use it as a library in an application, or install it directly from Nuget as a console tool.
-
-## Console tool
-If you have dotnet 3.1 installed, you can install the tool directly from [Nuget](https://www.nuget.org/packages/vtortola.Dawg.Tool/0.0.1-alpha)
-
-### Install the tool
-
-```
-$ dotnet tool install --global vtortola.Dawg.Tool --version 0.0.1-alpha
-You can invoke the tool using the following command: dawg
-Tool 'vtortola.dawg.tool' (version '0.0.1-alpha') was successfully installed.
-```
-
-### Creating a DAWG from a wordlist file
-
-To build a DAWG file from a wordlist just pipe the lines through it with the subcommand `build` and redirect it to the desired file.
-
-```
-$ cat espanol.txt | dawg build > espanol.dawg
-
-$ ls -lh espanol*
--rw-r--r--  1 vtortola  users   169K Sep  5 18:39 espanol.dawg
--rw-r--r--  1 vtortola  users   1.9M Aug  1 01:45 espanol.txt
-```
-
-### Creating a wordlist from a DAWG file
-
-To obtain the wordlist from the DAWG file, just pipe the content through the tool with the `unbuild` command and redirect to a file.
-
-```
-$ cat espanol.dawg | dawg unbuild > espanol.copy.txt
-```
-
-However keep in mind that the DAWG does not contain empty lines or duplicated words, and the order may be different than in the original wordlist. This specific source wordlist file `espanol.txt` contains some words that are repeated, so the correct way of matching its content against the wordlist generated from a DAWG file would be to also remove duplications from the source and sort them in the same way.
-
-```
-$ cat espanol.txt | wc -l
-  174848
-
-$ cat espanol.txt.copy | wc -l
-  168505
-```
-
-```
-$ cat espanol.txt | grep -v ^\s*$ | sort | uniq | wc -l
-  168505
-
-$ cat espanol.txt.copy | grep -v ^\s*$ | sort | uniq | wc -l
-  168505
-```
-
-
-## Library
-You can use it from [Nuget](https://www.nuget.org/packages/vtortola.Dawg/0.0.1-alpha)
-
-* Static:
-  - `Dawg.Create(...)`: builds a `Dawg` object from a list of strings.
-  - `Dawg.Verify(...)`: checks that all the words in a list of strings are contained in the `Dawg`.
-  - `Dawg.Read(...)`: deserializes a `Dawg`.
-  - `Dawg.Write(...)`: serializes a `Dawg`.
-  
-* Instance
-  - `Dawg.Contains(string word)`: checks if a word exists in the `Dawg` instance.
-  - `Dawg.WithPrefix(string prefix)`: enumerates words that start with the given prefix in the `Dawg`.
 
 # Building a memory optimized DAWG
 
@@ -176,6 +110,72 @@ Relies only in hashing. A hash collision would produce an inconsistent DAWG. Tha
 
 To go through the DAWG requires to jump back and forward in the array, in order words, a child node may have a smaller array index than a parent, making it more difficult to detect a loop. An inconsistent DAWG may fall into a endless loop.
 
+# Using the library
+
+If you want to give it a try, you can either use it as a library in an application, or install it directly from Nuget as a console tool.
+
+## Console tool
+If you have dotnet 3.1 installed, you can install the tool directly from [Nuget](https://www.nuget.org/packages/vtortola.Dawg.Tool/0.0.1-alpha)
+
+### Install the tool
+
+```
+$ dotnet tool install --global vtortola.Dawg.Tool --version 0.0.1-alpha
+You can invoke the tool using the following command: dawg
+Tool 'vtortola.dawg.tool' (version '0.0.1-alpha') was successfully installed.
+```
+
+### Creating a DAWG from a wordlist file
+
+To build a DAWG file from a wordlist just pipe the lines through it with the subcommand `build` and redirect it to the desired file.
+
+```
+$ cat espanol.txt | dawg build > espanol.dawg
+
+$ ls -lh espanol*
+-rw-r--r--  1 vtortola  users   169K Sep  5 18:39 espanol.dawg
+-rw-r--r--  1 vtortola  users   1.9M Aug  1 01:45 espanol.txt
+```
+
+### Creating a wordlist from a DAWG file
+
+To obtain the wordlist from the DAWG file, just pipe the content through the tool with the `unbuild` command and redirect to a file.
+
+```
+$ cat espanol.dawg | dawg unbuild > espanol.copy.txt
+```
+
+However keep in mind that the DAWG does not contain empty lines or duplicated words, and the order may be different than in the original wordlist. This specific source wordlist file `espanol.txt` contains some words that are repeated, so the correct way of matching its content against the wordlist generated from a DAWG file would be to also remove duplications from the source and sort them in the same way.
+
+```
+$ cat espanol.txt | wc -l
+  174848
+
+$ cat espanol.txt.copy | wc -l
+  168505
+```
+
+```
+$ cat espanol.txt | grep -v ^\s*$ | sort | uniq | wc -l
+  168505
+
+$ cat espanol.txt.copy | grep -v ^\s*$ | sort | uniq | wc -l
+  168505
+```
+
+
+## Library
+You can use it from [Nuget](https://www.nuget.org/packages/vtortola.Dawg/0.0.1-alpha)
+
+* Static:
+  - `Dawg.Create(...)`: builds a `Dawg` object from a list of strings.
+  - `Dawg.Verify(...)`: checks that all the words in a list of strings are contained in the `Dawg`.
+  - `Dawg.Read(...)`: deserializes a `Dawg`.
+  - `Dawg.Write(...)`: serializes a `Dawg`.
+  
+* Instance
+  - `Dawg.Contains(string word)`: checks if a word exists in the `Dawg` instance.
+  - `Dawg.WithPrefix(string prefix)`: enumerates words that start with the given prefix in the `Dawg`.
 # Comparisons
 
 These are some comparative tests I have performed to understand the behaviour of a DAWG. These tests are not benchmarks and are not mean to be accurate, their purpose is just to get an idea on how a DAWG comparares to other data structures in both size and performance.
